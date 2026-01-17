@@ -33,6 +33,24 @@ TrustCircle is an innovative EVM-compatible decentralized lending protocol that 
 - Reputation bonuses for unlocking achievements
 - Progress tracking and milestone rewards
 
+### 📈 Referral System
+- Invite friends and earn reputation bonuses
+- 30 points for referrer, 20 for new user
+- Milestone bonuses every 5 referrals (+50 points)
+
+### 🔒 Emergency Withdrawals
+- Timelock mechanism (7-day waiting period)
+- Safer emergency fund access
+- Reputation penalty for emergency use
+
+### 💻 Premium Frontend
+- **Complete Borrow Interface** - Loan amount, duration, interest preview
+- **Complete Lend Interface** - Deposit/withdraw with pool statistics
+- **Trust Circles Interface** - Create circles, set requirements
+- **Loan Management** - View all loans, repay directly
+- **Transaction Tracking** - Real-time tx notifications with Etherscan links
+- **Enhanced Hero** - Feature showcase for new users
+
 ## 🏗️ Architecture
 
 ### Smart Contracts
@@ -41,6 +59,8 @@ TrustCircle is an innovative EVM-compatible decentralized lending protocol that 
 - **TrustCircle.sol** - Circle creation, member management, and vouching system
 - **LendingPool.sol** - Core lending/borrowing with dynamic rates
 - **AchievementBadges.sol** - Gamification with achievement NFTs
+- **ReferralSystem.sol** - User growth incentives with reputation bonuses
+- **EmergencyWithdraw.sol** - Timelock mechanism for safer emergency withdrawals
 
 ### Frontend
 
