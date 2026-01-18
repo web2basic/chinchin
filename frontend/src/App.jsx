@@ -46,6 +46,10 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('dashboard');
   const [txHash, setTxHash] = useState('');
+  const [theme, setTheme] = useState(() => {
+    // Get theme from localStorage or default to 'dark'
+    return localStorage.getItem('theme') || 'dark';
+  });
 
   // Contract addresses - update after deployment
   const CONTRACT_ADDRESSES = {
@@ -56,6 +60,17 @@ function App() {
 
   const tierNames = ['Bronze', 'Silver', 'Gold', 'Platinum', 'Diamond'];
   const tierColors = ['#CD7F32', '#C0C0C0', '#FFD700', '#E5E4E2', '#B9F2FF'];
+
+  // Theme toggle effect
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  // Toggle theme function
+  const toggleTheme = () => {
+    setTheme(prevTheme => prevTheme === 'dark' ? 'light' : 'dark');
+  };
 
   // Connect Wallet
   const connectWallet = async () => {
@@ -297,17 +312,25 @@ function App() {
       <header className="header">
         <div className="header-content">
           <h1 className="logo gradient-text">TrustCircle</h1>
-          {!account ? (
-            <button className="btn btn-primary" onClick={connectWallet} disabled={loading}>
-              {loading ? 'Connecting...' : 'Connect Wallet'}
+          <div className="wallet-info">
+            <button
+              className="theme-toggle-btn"
+              onClick={toggleTheme}
+              aria-label="Toggle theme"
+              title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+            >
+              {theme === 'dark' ? '☀️' : '🌙'}
             </button>
-          ) : (
-            <div className="wallet-info">
+            {!account ? (
+              <button className="btn btn-primary" onClick={connectWallet} disabled={loading}>
+                {loading ? 'Connecting...' : 'Connect Wallet'}
+              </button>
+            ) : (
               <span className="badge badge-success">
                 {account.slice(0, 6)}...{account.slice(-4)}
               </span>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </header>
 

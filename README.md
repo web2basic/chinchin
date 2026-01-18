@@ -61,6 +61,9 @@ TrustCircle is an innovative EVM-compatible decentralized lending protocol that 
 - **AchievementBadges.sol** - Gamification with achievement NFTs
 - **ReferralSystem.sol** - User growth incentives with reputation bonuses
 - **EmergencyWithdraw.sol** - Timelock mechanism for safer emergency withdrawals
+- **LoanExtension.sol** - Request loan extensions with 5% fee
+- **GovernanceToken.sol** - DAO-style voting on protocol parameters
+- **Leaderboard.sol** - Track and rank top performers
 
 ### Frontend
 

@@ -11,22 +11,45 @@
   --success: #10b981;
   --warning: #f59e0b;
   --error: #ef4444;
-  
+}
+
+/* Dark Theme (Default) */
+:root,
+:root[data-theme="dark"] {
   /* Backgrounds */
   --bg-main: #0f172a;
   --bg-card: rgba(30, 41, 59, 0.7);
   --bg-glass: rgba(255, 255, 255, 0.05);
   --bg-hover: rgba(255, 255, 255, 0.1);
-  
+
   /* Text */
   --text-primary: #f8fafc;
   --text-secondary: #cbd5e1;
   --text-muted: #94a3b8;
-  
+
   /* Effects */
   --glow: 0 0 30px rgba(139, 92, 246, 0.3);
   --glow-strong: 0 0 40px rgba(139, 92, 246, 0.5);
   --shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+}
+
+/* Light Theme */
+:root[data-theme="light"] {
+  /* Backgrounds */
+  --bg-main: #f8fafc;
+  --bg-card: rgba(255, 255, 255, 0.9);
+  --bg-glass: rgba(255, 255, 255, 0.7);
+  --bg-hover: rgba(139, 92, 246, 0.1);
+
+  /* Text */
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+
+  /* Effects */
+  --glow: 0 0 30px rgba(139, 92, 246, 0.2);
+  --glow-strong: 0 0 40px rgba(139, 92, 246, 0.4);
+  --shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
 }
 
 * {
@@ -37,11 +60,22 @@
 
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #1e293b 100%);
+  background: var(--bg-main);
   background-attachment: fixed;
   color: var(--text-primary);
   min-height: 100vh;
   overflow-x: hidden;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* Dark theme background gradient */
+:root[data-theme="dark"] body {
+  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #1e293b 100%);
+}
+
+/* Light theme background gradient */
+:root[data-theme="light"] body {
+  background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 50%, #dbeafe 100%);
 }
 
 /* Animated Background */
@@ -53,14 +87,28 @@ body::before {
   right: 0;
   bottom: 0;
   background: radial-gradient(circle at 20% 50%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
-              radial-gradient(circle at 80% 80%, rgba(6, 182, 212, 0.1) 0%, transparent 50%);
+    radial-gradient(circle at 80% 80%, rgba(6, 182, 212, 0.1) 0%, transparent 50%);
   pointer-events: none;
   animation: pulse 8s ease-in-out infinite;
+  transition: opacity 0.3s ease;
+}
+
+/* Light theme animated background */
+:root[data-theme="light"] body::before {
+  background: radial-gradient(circle at 20% 50%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(6, 182, 212, 0.15) 0%, transparent 50%);
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
 }
 
 /* Glassmorphism Card */
@@ -250,8 +298,13 @@ body::before {
 }
 
 @keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 /* Grid Layout */
@@ -301,7 +354,9 @@ body::before {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Animations */
@@ -310,6 +365,7 @@ body::before {
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -325,6 +381,7 @@ body::before {
     opacity: 0;
     transform: translateX(-20px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -340,11 +397,12 @@ body::before {
   .glass-card {
     padding: 1.5rem;
   }
-  
-  .grid-2, .grid-3 {
+
+  .grid-2,
+  .grid-3 {
     grid-template-columns: 1fr;
   }
-  
+
   .btn {
     padding: 0.75rem 1.5rem;
     font-size: 0.9375rem;
