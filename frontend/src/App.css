@@ -4,10 +4,8 @@
   flex-direction: column;
   position: relative;
   z-index: 1;
-  /* Content above background */
 }
 
-/* Header */
 .header {
   padding: 1.5rem 0;
   position: sticky;
@@ -39,7 +37,6 @@
   gap: 1rem;
 }
 
-/* Theme Toggle Button */
 .theme-toggle-btn {
   width: 48px;
   height: 48px;
@@ -81,7 +78,6 @@
   transform: scale(0.95);
 }
 
-/* Hero Section */
 .hero {
   flex: 1;
   display: flex;
@@ -118,7 +114,6 @@
   font-size: 1.125rem;
 }
 
-/* Container */
 .container {
   flex: 1;
   max-width: 1400px;
@@ -127,7 +122,6 @@
   width: 100%;
 }
 
-/* Tabs */
 .tabs {
   display: flex;
   gap: 1rem;
@@ -159,7 +153,6 @@
   background: rgba(139, 92, 246, 0.15);
 }
 
-/* Dashboard */
 .dashboard {
   display: flex;
   flex-direction: column;
@@ -173,7 +166,6 @@
   color: var(--text-primary);
 }
 
-/* Reputation Card */
 .reputation-card {
   background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(6, 182, 212, 0.1) 100%);
 }
@@ -254,7 +246,6 @@
   color: var(--text-primary);
 }
 
-/* Text Utilities */
 .text-center {
   text-align: center;
 }
@@ -267,7 +258,6 @@
   margin-bottom: 2rem;
 }
 
-/* Footer */
 .footer {
   padding: 2rem;
   text-align: center;
@@ -275,7 +265,6 @@
   background: rgba(15, 23, 42, 0.6);
 }
 
-/* Responsive */
 @media (max-width: 768px) {
   .hero-title {
     font-size: 2.5rem;
@@ -316,7 +305,6 @@
   }
 }
 
-/* Hero Features */
 .hero-features {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -355,7 +343,6 @@
   font-size: 0.9375rem;
 }
 
-/* Transaction Notification */
 .tx-notification {
   position: fixed;
   top: 100px;
@@ -383,7 +370,6 @@
   text-decoration: underline;
 }
 
-/* Loan List */
 .loan-list {
   display: flex;
   flex-direction: column;
@@ -430,7 +416,6 @@
   color: var(--error);
 }
 
-/* Forms */
 .borrow-form,
 .lending-form,
 .circle-form {
@@ -494,9 +479,6 @@ select.input-field {
   margin-bottom: 2rem !important;
 }
 
-/* --- CRAZY FEATURES START --- */
-
-/* 1. Market Pulse Ticker */
 .marquee-container {
   width: 100%;
   background: rgba(15, 23, 42, 0.95);
@@ -520,7 +502,6 @@ select.input-field {
   color: var(--text-secondary);
   font-size: 0.9rem;
   font-family: 'Courier New', monospace;
-  /* Tech feel */
 }
 
 .ticker-highlight {
@@ -539,7 +520,6 @@ select.input-field {
   }
 }
 
-/* 2. 3D Holographic Reputation Card */
 .holographic-container {
   perspective: 1000px;
   display: flex;
@@ -552,8 +532,6 @@ select.input-field {
   width: 100%;
 }
 
-/* Overwrite the default flat card for this special context if needed, 
-   but here we modify the standard .reputation-card when inside the wrapper */
 .holographic-card-wrapper .reputation-card {
   background: linear-gradient(135deg,
       rgba(255, 255, 255, 0.05) 0%,
@@ -565,10 +543,8 @@ select.input-field {
   position: relative;
   overflow: hidden;
   transform: translateZ(20px);
-  /* Pop out a bit */
 }
 
-/* The holographic sheen */
 .holographic-overlay {
   position: absolute;
   top: 0;
@@ -595,7 +571,6 @@ select.input-field {
   }
 }
 
-/* 3. Glitch Text Effect */
 .glitch-wrapper {
   position: relative;
   display: inline-block;
@@ -615,7 +590,6 @@ select.input-field {
   width: 100%;
   height: 100%;
   background: #0f172a;
-  /* Match background to hide main text */
 }
 
 .glitch-text::before {
@@ -684,7 +658,6 @@ select.input-field {
   }
 }
 
-/* 4. Neon Buttons */
 .btn-neon {
   position: relative;
   overflow: hidden;
