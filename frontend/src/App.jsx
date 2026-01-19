@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { ethers } from 'ethers';
 import confetti from 'canvas-confetti';
+import ConstellationBackground from './components/ConstellationBackground';
 import './App.css';
 
 // Contract ABIs (simplified - include essential functions)
@@ -87,6 +88,60 @@ const HolographicCard = ({ children }) => {
       </div>
     </div>
   );
+};
+
+
+// --- AUDIO SYSTEM ---
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+const playSound = (type) => {
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+
+  const now = audioCtx.currentTime;
+
+  if (type === 'hover') {
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(400, now);
+    osc.frequency.exponentialRampToValueAtTime(800, now + 0.1);
+    gain.gain.setValueAtTime(0.05, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+    osc.start(now);
+    osc.stop(now + 0.1);
+  } else if (type === 'click') {
+    osc.type = 'square';
+    osc.frequency.setValueAtTime(200, now);
+    gain.gain.setValueAtTime(0.1, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+    osc.start(now);
+    osc.stop(now + 0.1);
+  } else if (type === 'success') {
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(400, now);
+    osc.frequency.linearRampToValueAtTime(800, now + 0.2);
+    osc.frequency.linearRampToValueAtTime(1200, now + 0.4);
+    gain.gain.setValueAtTime(0.1, now);
+    gain.gain.linearRampToValueAtTime(0.1, now + 0.4);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.8);
+    osc.start(now);
+    osc.stop(now + 0.8);
+  }
+};
+
+const speak = (text) => {
+  if ('speechSynthesis' in window) {
+    const msg = new SpeechSynthesisUtterance(text);
+    msg.rate = 1.1;
+    msg.pitch = 1.0;
+    // Prefer a generic English voice
+    const voices = window.speechSynthesis.getVoices();
+    const voice = voices.find(v => v.lang.includes('en') && v.name.includes('Google')) || voices[0];
+    if (voice) msg.voice = voice;
+    window.speechSynthesis.speak(msg);
+  }
 };
 
 function App() {
@@ -206,6 +261,13 @@ function App() {
           trustScore: Number(trustScore),
           circles: circleIds.length
         });
+
+        // Voice Welcome
+        // Only speak if we haven't welcomed this address this session (simple check)
+        if (!window.hasWelcomed) {
+          speak(`Welcome back. Accessing Trust Circle protocol for account ${address.slice(0, 4)}`);
+          window.hasWelcomed = true;
+        }
       }
     } catch (error) {
       console.error('Error loading user data:', error);
@@ -222,11 +284,13 @@ function App() {
       await loadUserData(account);
       setLoading(false);
       setTxHash('');
+      playSound('success');
       confetti({
         particleCount: 150,
         spread: 70,
         origin: { y: 0.6 }
       });
+      speak("Reputation minting successful. Welcome to the circle.");
       alert('Reputation NFT minted successfully!');
     } catch (error) {
       console.error('Error minting:', error);
@@ -380,6 +444,7 @@ function App() {
 
   return (
     <div className="app">
+      <ConstellationBackground />
       {/* Header */}
       <header className="header">
         <MarketPulse />
@@ -390,7 +455,7 @@ function App() {
           <div className="wallet-info">
             <button
               className="theme-toggle-btn"
-              onClick={toggleTheme}
+              onClick={() => { toggleTheme(); playSound('click'); }}
               aria-label="Toggle theme"
               title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
             >
