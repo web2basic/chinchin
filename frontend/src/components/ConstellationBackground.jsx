@@ -18,7 +18,7 @@ const ConstellationBackground = () => {
 
         const initParticles = () => {
             particles = [];
-            const particleCount = Math.floor((width * height) / 15000); // Density
+            const particleCount = Math.floor((width * height) / 15000);
 
             for (let i = 0; i < particleCount; i++) {
                 particles.push({
@@ -34,22 +34,18 @@ const ConstellationBackground = () => {
         const draw = () => {
             ctx.clearRect(0, 0, width, height);
 
-            // Draw particles
             particles.forEach((p, i) => {
                 p.x += p.vx;
                 p.y += p.vy;
 
-                // Bounce
                 if (p.x < 0 || p.x > width) p.vx *= -1;
                 if (p.y < 0 || p.y > height) p.vy *= -1;
 
-                // Draw dot
                 ctx.beginPath();
                 ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                ctx.fillStyle = 'rgba(139, 92, 246, 0.5)'; // Primary color low opacity
+                ctx.fillStyle = 'rgba(139, 92, 246, 0.5)';
                 ctx.fill();
 
-                // Connect
                 for (let j = i + 1; j < particles.length; j++) {
                     const p2 = particles[j];
                     const dx = p.x - p2.x;
@@ -90,7 +86,7 @@ const ConstellationBackground = () => {
                 width: '100%',
                 height: '100%',
                 zIndex: -1,
-                background: 'linear-gradient(to bottom, #0f172a, #1e1b4b)', // Fallback / Base
+                background: 'linear-gradient(to bottom, #0f172a, #1e1b4b)',
                 pointerEvents: 'none'
             }}
         />
