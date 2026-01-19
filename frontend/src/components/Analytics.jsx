@@ -5,13 +5,12 @@ function Analytics({ reputationData, poolStats }) {
     const [chartData, setChartData] = useState([]);
 
     useEffect(() => {
-        // Mock reputation history - replace with actual historical data
         const mockHistory = [
             { date: 'Jan 10', score: 100 },
             { date: 'Jan 12', score: 150 },
             { date: 'Jan 14', score: 180 },
             { date: 'Jan 16', score: 220 },
-            { date: 'Jan 18', score: 200 }, // Example of score decrease
+            { date: 'Jan 18', score: 200 },
             { date: 'Today', score: reputationData?.score || 250 },
         ];
         setChartData(mockHistory);
@@ -23,7 +22,6 @@ function Analytics({ reputationData, poolStats }) {
         <div className="analytics-container">
             <h3 className="analytics-title">📊 Analytics Dashboard</h3>
 
-            {/* Reputation Chart */}
             <div className="chart-container glass-card">
                 <h4>Reputation History</h4>
                 <div className="chart">
@@ -54,7 +52,6 @@ function Analytics({ reputationData, poolStats }) {
                 </div>
             </div>
 
-            {/* Key Metrics */}
             <div className="metrics-grid">
                 <div className="metric-card glass-card">
                     <div className="metric-icon">💎</div>
@@ -93,7 +90,6 @@ function Analytics({ reputationData, poolStats }) {
                 </div>
             </div>
 
-            {/* Insights */}
             <div className="insights-container glass-card">
                 <h4>Insights & Tips</h4>
                 <div className="insight-list">
