@@ -19,7 +19,6 @@ function Leaderboard({ contracts, account }) {
     const loadLeaderboard = async () => {
         try {
             setLoading(true);
-            // Mock data for demonstration - replace with actual contract calls
             const mockData = [
                 { user: '0x1234...5678', reputation: 950, loansCompleted: 15, totalRepaid: '12.5', trustScore: 250, tier: 4 },
                 { user: '0x2345...6789', reputation: 820, loansCompleted: 12, totalRepaid: '9.8', trustScore: 180, tier: 3 },
@@ -29,7 +28,6 @@ function Leaderboard({ contracts, account }) {
             ];
 
             if (account) {
-                // Add current user if not in top 5
                 const currentUser = {
                     user: `${account.slice(0, 6)}...${account.slice(-4)}`,
                     reputation: 450,
@@ -38,7 +36,7 @@ function Leaderboard({ contracts, account }) {
                     trustScore: 75,
                     tier: 2
                 };
-                setUserRank(6); // Example rank
+                setUserRank(6);
             }
 
             setTopUsers(mockData);

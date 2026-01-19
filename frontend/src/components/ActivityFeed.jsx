@@ -10,7 +10,6 @@ function ActivityFeed({ account, contracts }) {
     }, [account, filter]);
 
     const loadActivities = () => {
-        // Mock activity data - replace with actual event listening
         const mockActivities = [
             {
                 id: 1,

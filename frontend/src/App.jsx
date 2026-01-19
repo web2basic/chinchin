@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { ethers } from 'ethers';
+import confetti from 'canvas-confetti';
+import ConstellationBackground from './components/ConstellationBackground';
 import './App.css';
 
-// Contract ABIs (simplified - include essential functions)
 const REPUTATION_NFT_ABI = [
   "function mint(address user) external returns (uint256)",
   "function getReputationScore(address user) external view returns (uint256)",
@@ -34,6 +35,108 @@ const TRUST_CIRCLE_ABI = [
   "function vouchForMember(uint256 circleId, address member) external"
 ];
 
+const MarketPulse = () => {
+  return (
+    <div className="marquee-container">
+      <div className="marquee-content">
+        <span className="ticker-item">🔴 LIVE: <span className="ticker-highlight">User 0x8a...2b just borrowed 5.0 ETH</span></span>
+        <span className="ticker-item">💎 INFO: <span className="ticker-highlight">TrustCircle TVL reaches $1.2M</span></span>
+        <span className="ticker-item">🚀 NEW: <span className="ticker-highlight">Diamond Tier unlocked by User 0x9f...11</span></span>
+        <span className="ticker-item">📊 RATE: <span className="ticker-highlight">Base interest rate adjusted to 4.2%</span></span>
+        <span className="ticker-item">🤝 SOCIAL: <span className="ticker-highlight">New Trust Circle "DeFi Whales" created</span></span>
+        <span className="ticker-item">🔴 LIVE: <span className="ticker-highlight">User 0x3c...9d repaid loan early (+50 Rep)</span></span>
+      </div>
+    </div>
+  );
+};
+
+const HolographicCard = ({ children }) => {
+  const [transform, setTransform] = useState('');
+
+  const handleMouseMove = (e) => {
+    const card = e.currentTarget;
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+
+    const rotateX = ((y - centerY) / centerY) * -10;
+    const rotateY = ((x - centerX) / centerX) * 10;
+
+    setTransform(`perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`);
+  };
+
+  const handleMouseLeave = () => {
+    setTransform('');
+  };
+
+  return (
+    <div className="holographic-container">
+      <div
+        className="holographic-card-wrapper"
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+        style={{ transform }}
+      >
+        <div className="holographic-overlay"></div>
+        {children}
+      </div>
+    </div>
+  );
+};
+
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+const playSound = (type) => {
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+
+  const now = audioCtx.currentTime;
+
+  if (type === 'hover') {
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(400, now);
+    osc.frequency.exponentialRampToValueAtTime(800, now + 0.1);
+    gain.gain.setValueAtTime(0.05, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+    osc.start(now);
+    osc.stop(now + 0.1);
+  } else if (type === 'click') {
+    osc.type = 'square';
+    osc.frequency.setValueAtTime(200, now);
+    gain.gain.setValueAtTime(0.1, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+    osc.start(now);
+    osc.stop(now + 0.1);
+  } else if (type === 'success') {
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(400, now);
+    osc.frequency.linearRampToValueAtTime(800, now + 0.2);
+    osc.frequency.linearRampToValueAtTime(1200, now + 0.4);
+    gain.gain.setValueAtTime(0.1, now);
+    gain.gain.linearRampToValueAtTime(0.1, now + 0.4);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.8);
+    osc.start(now);
+    osc.stop(now + 0.8);
+  }
+};
+
+const speak = (text) => {
+  if ('speechSynthesis' in window) {
+    const msg = new SpeechSynthesisUtterance(text);
+    msg.rate = 1.1;
+    msg.pitch = 1.0;
+    const voices = window.speechSynthesis.getVoices();
+    const voice = voices.find(v => v.lang.includes('en') && v.name.includes('Google')) || voices[0];
+    if (voice) msg.voice = voice;
+    window.speechSynthesis.speak(msg);
+  }
+};
+
 function App() {
   const [account, setAccount] = useState(null);
   const [provider, setProvider] = useState(null);
@@ -47,32 +150,27 @@ function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [txHash, setTxHash] = useState('');
   const [theme, setTheme] = useState(() => {
-    // Get theme from localStorage or default to 'dark'
     return localStorage.getItem('theme') || 'dark';
   });
 
-  // Contract addresses - update after deployment
   const CONTRACT_ADDRESSES = {
-    reputationNFT: "0x...", // Update with deployed address
-    lendingPool: "0x...",   // Update with deployed address
-    trustCircle: "0x..."    // Update with deployed address
+    reputationNFT: "0x...",
+    lendingPool: "0x...",
+    trustCircle: "0x..."
   };
 
   const tierNames = ['Bronze', 'Silver', 'Gold', 'Platinum', 'Diamond'];
   const tierColors = ['#CD7F32', '#C0C0C0', '#FFD700', '#E5E4E2', '#B9F2FF'];
 
-  // Theme toggle effect
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('theme', theme);
   }, [theme]);
 
-  // Toggle theme function
   const toggleTheme = () => {
     setTheme(prevTheme => prevTheme === 'dark' ? 'light' : 'dark');
   };
 
-  // Connect Wallet
   const connectWallet = async () => {
     try {
       if (typeof window.ethereum === 'undefined') {
@@ -89,14 +187,12 @@ function App() {
       setSigner(signer);
       setAccount(accounts[0]);
 
-      // Initialize contracts
       const reputationNFT = new ethers.Contract(CONTRACT_ADDRESSES.reputationNFT, REPUTATION_NFT_ABI, signer);
       const lendingPool = new ethers.Contract(CONTRACT_ADDRESSES.lendingPool, LENDING_POOL_ABI, signer);
       const trustCircle = new ethers.Contract(CONTRACT_ADDRESSES.trustCircle, TRUST_CIRCLE_ABI, signer);
 
       setContracts({ reputationNFT, lendingPool, trustCircle });
 
-      // Load user data
       await loadUserData(accounts[0], { reputationNFT, lendingPool, trustCircle });
       setLoading(false);
     } catch (error) {
@@ -105,7 +201,6 @@ function App() {
     }
   };
 
-  // Load user reputation data
   const loadUserData = async (address, contractsObj) => {
     try {
       const contracts = contractsObj || contracts;
@@ -120,7 +215,6 @@ function App() {
         const circleIds = await contracts.trustCircle.getUserCircles(address);
         const loanIds = await contracts.lendingPool.getBorrowerLoans(address);
 
-        // Load loan details
         const loanDetails = await Promise.all(
           loanIds.map(async (id) => {
             const loan = await contracts.lendingPool.getLoan(id);
@@ -131,7 +225,6 @@ function App() {
 
         setLoans(loanDetails);
 
-        // Load pool stats
         const totalLiquidity = await contracts.lendingPool.totalLiquidity();
         const lenderInfo = await contracts.lendingPool.lenders(address);
 
@@ -147,17 +240,21 @@ function App() {
           totalBorrowed: ethers.formatEther(data.totalBorrowed),
           totalRepaid: ethers.formatEther(data.totalRepaid),
           borrowingLimit: ethers.formatEther(borrowingLimit),
-          interestRate: Number(interestRate) / 100, // Convert from basis points
+          interestRate: Number(interestRate) / 100,
           trustScore: Number(trustScore),
           circles: circleIds.length
         });
+
+        if (!window.hasWelcomed) {
+          speak(`Welcome back. Accessing Trust Circle protocol for account ${address.slice(0, 4)}`);
+          window.hasWelcomed = true;
+        }
       }
     } catch (error) {
       console.error('Error loading user data:', error);
     }
   };
 
-  // Mint Reputation NFT
   const mintReputation = async () => {
     try {
       setLoading(true);
@@ -167,6 +264,13 @@ function App() {
       await loadUserData(account);
       setLoading(false);
       setTxHash('');
+      playSound('success');
+      confetti({
+        particleCount: 150,
+        spread: 70,
+        origin: { y: 0.6 }
+      });
+      speak("Reputation minting successful. Welcome to the circle.");
       alert('Reputation NFT minted successfully!');
     } catch (error) {
       console.error('Error minting:', error);
@@ -176,7 +280,6 @@ function App() {
     }
   };
 
-  // Borrow functionality
   const [borrowAmount, setBorrowAmount] = useState('');
   const [borrowDuration, setBorrowDuration] = useState('30');
 
@@ -205,7 +308,6 @@ function App() {
     }
   };
 
-  // Repay loan
   const handleRepay = async (loanId, totalOwed) => {
     try {
       setLoading(true);
@@ -215,6 +317,12 @@ function App() {
       await loadUserData(account);
       setLoading(false);
       setTxHash('');
+      confetti({
+        particleCount: 100,
+        spread: 60,
+        origin: { y: 0.6 },
+        colors: ['#10B981', '#34D399']
+      });
       alert('Loan repaid successfully!');
     } catch (error) {
       console.error('Error repaying:', error);
@@ -224,7 +332,6 @@ function App() {
     }
   };
 
-  // Lending functionality
   const [depositAmount, setDepositAmount] = useState('');
   const [withdrawAmount, setWithdrawAmount] = useState('');
 
@@ -278,7 +385,6 @@ function App() {
     }
   };
 
-  // Trust Circle functionality
   const [circleName, setCircleName] = useState('');
   const [minReputation, setMinReputation] = useState('100');
 
@@ -297,6 +403,12 @@ function App() {
       setCircleName('');
       setLoading(false);
       setTxHash('');
+      confetti({
+        particleCount: 120,
+        spread: 100,
+        origin: { y: 0.6 },
+        colors: ['#8B5CF6', '#C4B5FD']
+      });
       alert('Trust circle created!');
     } catch (error) {
       console.error('Error creating circle:', error);
@@ -308,14 +420,17 @@ function App() {
 
   return (
     <div className="app">
-      {/* Header */}
+      <ConstellationBackground />
       <header className="header">
+        <MarketPulse />
         <div className="header-content">
-          <h1 className="logo gradient-text">TrustCircle</h1>
+          <h1 className="logo gradient-text glitch-wrapper">
+            <span className="glitch-text" data-text="TrustCircle">TrustCircle</span>
+          </h1>
           <div className="wallet-info">
             <button
               className="theme-toggle-btn"
-              onClick={toggleTheme}
+              onClick={() => { toggleTheme(); playSound('click'); }}
               aria-label="Toggle theme"
               title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
             >
@@ -334,7 +449,6 @@ function App() {
         </div>
       </header>
 
-      {/* Transaction Status */}
       {txHash && (
         <div className="tx-notification">
           <div className="spinner"></div>
@@ -345,7 +459,6 @@ function App() {
         </div>
       )}
 
-      {/* Main Content */}
       <main className="container">
         {!account ? (
           <div className="hero">
@@ -378,7 +491,6 @@ function App() {
           </div>
         ) : (
           <>
-            {/* Navigation Tabs */}
             <div className="tabs">
               <button
                 className={`tab ${activeTab === 'dashboard' ? 'tab-active' : ''}`}
@@ -406,59 +518,58 @@ function App() {
               </button>
             </div>
 
-            {/* Dashboard Tab */}
             {activeTab === 'dashboard' && (
               <div className="dashboard fade-in">
                 {!reputationData ? (
                   <div className="glass-card text-center">
                     <h2>Welcome to TrustCircle!</h2>
                     <p className="text-secondary mb-4">Mint your Reputation NFT to get started</p>
-                    <button className="btn btn-primary" onClick={mintReputation} disabled={loading}>
+                    <button className="btn btn-primary btn-neon" onClick={mintReputation} disabled={loading}>
                       {loading ? 'Minting...' : 'Mint Reputation NFT'}
                     </button>
                   </div>
                 ) : (
                   <>
-                    {/* Reputation Card */}
-                    <div className="glass-card reputation-card">
-                      <h2 className="card-title">Your Reputation</h2>
-                      <div className="reputation-display">
-                        <div className="reputation-score">
-                          <div
-                            className="score-circle"
-                            style={{
-                              background: `linear-gradient(135deg, ${tierColors[reputationData.tier]}, ${tierColors[reputationData.tier]}99)`,
-                              boxShadow: `0 0 40px ${tierColors[reputationData.tier]}66`
-                            }}
-                          >
-                            <span className="score-value">{reputationData.score}</span>
+                    <HolographicCard>
+                      <div className="glass-card reputation-card">
+                        <h2 className="card-title">Your Reputation</h2>
+                        <div className="reputation-display">
+                          <div className="reputation-score">
+                            <div
+                              className="score-circle"
+                              style={{
+                                background: `linear-gradient(135deg, ${tierColors[reputationData.tier]}, ${tierColors[reputationData.tier]}99)`,
+                                boxShadow: `0 0 40px ${tierColors[reputationData.tier]}66`
+                              }}
+                            >
+                              <span className="score-value">{reputationData.score}</span>
+                            </div>
+                            <div className="tier-badge" style={{ color: tierColors[reputationData.tier] }}>
+                              {tierNames[reputationData.tier]} Tier
+                            </div>
                           </div>
-                          <div className="tier-badge" style={{ color: tierColors[reputationData.tier] }}>
-                            {tierNames[reputationData.tier]} Tier
-                          </div>
-                        </div>
-                        <div className="reputation-stats">
-                          <div className="stat-item">
-                            <span className="stat-label">Loans Completed</span>
-                            <span className="stat-value">{reputationData.loansCompleted}</span>
-                          </div>
-                          <div className="stat-item">
-                            <span className="stat-label">Total Borrowed</span>
-                            <span className="stat-value">{parseFloat(reputationData.totalBorrowed).toFixed(2)} ETH</span>
-                          </div>
-                          <div className="stat-item">
-                            <span className="stat-label">Total Repaid</span>
-                            <span className="stat-value">{parseFloat(reputationData.totalRepaid).toFixed(2)} ETH</span>
-                          </div>
-                          <div className="stat-item">
-                            <span className="stat-label">Trust Circles</span>
-                            <span className="stat-value">{reputationData.circles}</span>
+                          <div className="reputation-stats">
+                            <div className="stat-item">
+                              <span className="stat-label">Loans Completed</span>
+                              <span className="stat-value">{reputationData.loansCompleted}</span>
+                            </div>
+                            <div className="stat-item">
+                              <span className="stat-label">Total Borrowed</span>
+                              <span className="stat-value">{parseFloat(reputationData.totalBorrowed).toFixed(2)} ETH</span>
+                            </div>
+                            <div className="stat-item">
+                              <span className="stat-label">Total Repaid</span>
+                              <span className="stat-value">{parseFloat(reputationData.totalRepaid).toFixed(2)} ETH</span>
+                            </div>
+                            <div className="stat-item">
+                              <span className="stat-label">Trust Circles</span>
+                              <span className="stat-value">{reputationData.circles}</span>
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
+                    </HolographicCard>
 
-                    {/* Quick Stats */}
                     <div className="grid grid-3">
                       <div className="stat-card">
                         <div className="stat-value gradient-text">{parseFloat(reputationData.borrowingLimit).toFixed(2)} ETH</div>
@@ -474,7 +585,6 @@ function App() {
                       </div>
                     </div>
 
-                    {/* Active Loans */}
                     {loans.length > 0 && (
                       <div className="glass-card">
                         <h2 className="card-title">Your Loans</h2>
@@ -511,7 +621,6 @@ function App() {
               </div>
             )}
 
-            {/* Borrow Tab */}
             {activeTab === 'borrow' && reputationData && (
               <div className="fade-in">
                 <div className="glass-card">
@@ -573,7 +682,6 @@ function App() {
               </div>
             )}
 
-            {/* Lend Tab */}
             {activeTab === 'lend' && (
               <div className="fade-in">
                 <div className="glass-card">
@@ -642,7 +750,6 @@ function App() {
               </div>
             )}
 
-            {/* Trust Circles Tab */}
             {activeTab === 'circles' && reputationData && (
               <div className="fade-in">
                 <div className="glass-card">
@@ -697,7 +804,6 @@ function App() {
         )}
       </main>
 
-      {/* Footer */}
       <footer className="footer">
         <p className="text-muted">Built with ❤️ for the hackathon • Powered by Ethereum</p>
       </footer>
